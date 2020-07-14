@@ -1,0 +1,102 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<script>
+  $(document).ready(() => {
+    $('#add_stocks').click(() => $('.ui .modal').modal('show'));
+
+    $('#save_stocks').click(() => {
+      let symbols = $('#symbols').val();
+      symbols = symbols.split('\n');
+
+      console.log(symbols);
+      $.ajax({
+        url: '/stocks',
+        type: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ "tickers": symbols })
+      });
+
+      $('.ui .modal').modal('hide');
+    });
+  });
+</script>
+
+<form>
+  <div class="ui input">
+    <input name="forward_pe" type="text" placeholder="PE Ratio" value="{{ forward_pe or '' }}">
+  </div>
+  <div class="ui input">
+    <input name="dividend_yield" type="text" placeholder="Dividend Yield" value="{{ dividend_yield or '' }}">
+  </div>
+
+  <div class="ui checkbox">
+    <input name="ma50" type="checkbox" {% if ma50 %} checked="checked"{% endif %}>
+    <label for="50_day_MA">Above 50 Day MA</label>
+  </div>
+  <div class="ui checkbox">
+    <input name="ma200" type="checkbox" {% if ma200 %} checked="checked"{% endif %}>
+    <label for="200_day_MA">Above 200 Day MA</label>
+  </div>
+
+  <button class="ui blue button">
+    Filter
+  </button>
+</form>
+
+
+<div>
+  <button class="ui green button" id="add_stocks">
+    Add Stocks
+  </button>
+</div>
+
+<table class="ui celled table">
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Price</th>
+      <th>Forward P/E</th>
+      <th>Forward EPS</th>
+      <th>Dividend Yield</th>
+      <th>50 Day</th>
+      <th>200 Day</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for stock in stocks %}
+    <tr>
+      <td>{{ stock.symbol }}</td>
+      <td>{{stock.price}}</td>
+      <td>{{ stock.forward_pe }}</td>
+      <td>{{ stock.forward_eps }}</td>
+      <td>{{ stock.dividend_yield }}</td>
+      <td>{{stock.ma50}}</td>
+      <td>{{stock.ma200}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="ui modal">
+  <i class="close icon"></i>
+  <div class="header">
+    Add Stock Symbol
+  </div>
+  <div class="content">
+    <div class="ui form">
+      <div class="field">
+        <label>Enter Stock Symbol(s)</label>
+        <textarea id="symbols"></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui positive right labeled icon button" id="save_stocks">
+      Add Symbols
+      <i class="plus icon"></i>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
